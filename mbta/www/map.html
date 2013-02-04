@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<meta http-equiv="cache-control" content="no-cache">
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script> 
+<script src="js/date.js"></script> 
+<script type="text/javascript">
+    $(document).ready(function() {
+
+// Read query parameters into hash:
+var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+})(window.location.search.substr(1).split('&'));
+
+	var locn = qs["locn"];
+        var imgurl = "http://maps.google.com/maps/api/staticmap?zoom=14&size=300x300&maptype=roadmap&markers=color:red|label:|"+locn+"&sensor=false&output=embed";
+	if (locn) {
+	    $('#mapimg').attr("src", imgurl);
+	}
+	
+    });
+
+</script>
+</head>
+<body>
+<h1>MBTA Train Location: Haverhill Line</h1>
+<img src="" id="mapimg"></img><br />
+</body>
+</html>
+

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Train Arrivals: Reading</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script type="text/javascript"  src="js/cfg/traincfg.js"></script> 
+<script src="js/date.js"></script> 
+<script type="text/javascript">
+    $(document).ready(function() {
+
+	var getData = function () {
+
+	    var readingIbData = {};
+	    var readingObData = {};
+
+	    $.ajax({
+		url: "http://"+serverAddr+"/mbta/lib/RTCR/RailLine_11.xml",
+		dataType : "xml",
+		cache : false,
+		success : function(data) {
+		    $('#trainTableBody').empty();		     	    
+
+		    var readingOb = new Array();
+		    var readingIb = new Array();
+
+		    $(data).find('TripMessage').each(function(){
+
+			var tripObj = objectifyTripXml($(this));
+			
+			if (tripObj.stop != "Reading") {
+			    return (true);
+			}
+    
+			if (tripObj.destination == 'North Station') {
+			    readingIb.push({'scheduled' : tripObj.scheduled,
+					    'trip' : tripObj.trip});
+			    readingIbData[tripObj.trip] = tripObj;
+			} else {
+			    readingOb.push({'scheduled' : tripObj.scheduled,
+					    'trip' : tripObj.trip});
+			    readingObData[tripObj.trip] = tripObj;
+			}
+
+		    });
+
+		    readingIb.sort(function(a, b) {
+			return a.scheduled > b.scheduled;
+		    });
+
+		    readingOb.sort(function(a, b) {
+			return a.scheduled > b.scheduled;
+		    });
+
+		    
+		    if (readingIb.length == 0) {
+			fillInHeaderRow(null, 'I', 0);
+		    } else {
+			fillInHeaderRow(readingIbData[readingIb[0].trip], 'I', readingIb.length);
+			if (readingIb.length > 1) {
+			    fillInTripRow(readingIbData[readingIb[1].trip]);
+			}
+		    }
+
+		    if (readingOb.length == 0) {
+			fillInHeaderRow(null, 'O', 0);
+		    } else {
+			fillInHeaderRow(readingObData[readingOb[0].trip], 'O', readingOb.length);
+			if (readingOb.length > 1) {
+			    fillInTripRow(readingObData[readingOb[1].trip]);
+			}
+		    }
+
+		    getActiveTrain();
+
+		    var tsStr = "";
+		    if (readingIb.length > 0) {
+			tsStr = readingIbData[readingIb[0].trip].timeStampDate.toString('M/d/yyyy HH:mm');
+		    } else if (readingOb.length > 0) {
+			tsStr = readingObData[readingOb[0].trip].timeStampDate.toString('M/d/yyyy HH:mm');
+		    } 
+		    if (tsStr != "") {			
+			$('#trainTable tr:last').after("<tr><td colspan=\"3\"><i>as of: "+tsStr+"</i></td></tr>");
+		    }
+
+
+		},
+		error : function(err) {
+		    //alert(err);
+		}
+	    });
+
+	};
+
+	// Fill the table once:
+        getData();
+	// and then every n seconds:
+	setInterval(getData, 30*1000);
+
+	var objectifyTripXml = function(xmlEle) {
+
+	    var tripObj = {}; 
+
+	    tripObj.timeStamp = xmlEle.find('TimeStamp').text();
+	    tripObj.timeStampDate = new Date(0);
+	    tripObj.timeStampDate.setUTCSeconds(tripObj.timeStamp);
+	    tripObj.trip = xmlEle.find('Trip').text();
+	    tripObj.destination = xmlEle.find('Destination').text();
+	    tripObj.stop = xmlEle.find('Stop').text();
+	    tripObj.scheduled = xmlEle.find('Scheduled').text();
+	    tripObj.scheduledDate = new Date(0);
+	    tripObj.scheduledDate.setUTCSeconds(tripObj.scheduled);
+	    tripObj.flag = xmlEle.find('Flag').text();
+	    tripObj.vehicle = xmlEle.find('Vehicle').text();
+	    tripObj.latitude = xmlEle.find('Latitude').text();
+	    tripObj.longitude = xmlEle.find('Longitude').text();
+	    tripObj.heading = xmlEle.find('Heading').text();
+	    tripObj.speed = xmlEle.find('Speed').text();
+	    tripObj.lateness = xmlEle.find('Lateness').text();
+	    
+	    tripObj.eta = null;
+	    tripObj.etaStr = "";
+            tripObj.etaMins = "";
+	    if (tripObj.flag == 'app') {
+		// assume approaching means current time
+		// plus 2 mins
+		tripObj.eta = new Date();
+		tripObj.eta.addSeconds(120);
+		tripObj.etaStr = tripObj.eta.toString('M/d/yyyy HH:mm');
+                tripObj.etaMins = 2;
+	    } else if (tripObj.flag == 'arr') {
+		tripObj.eta = new Date(tripObj.timeStampDate);
+		tripObj.etaStr = tripObj.eta.toString('M/d/yyyy HH:mm');
+		tripObj.etaMins = "Arriving";
+	    } else if (tripObj.flag == 'dep') {
+		tripObj.eta = "Departed";
+		tripObj.etaMins = "Departed";
+	    } else if (tripObj.lateness) {
+		tripObj.eta = new Date(tripObj.scheduledDate);
+		tripObj.eta.addSeconds(tripObj.lateness);
+		tripObj.etaStr = tripObj.eta.toString('M/d/yyyy HH:mm');
+		var etaMs = tripObj.eta.getTime();
+                var nowMs = tripObj.timeStampDate.getTime();
+                tripObj.etaMins = Math.round((etaMs - nowMs) / (60 * 1000));
+	    } else {
+		tripObj.eta = new Date(tripObj.scheduledDate);
+		tripObj.etaStr = tripObj.eta.toString('M/d/yyyy HH:mm');
+		var etaMs = tripObj.eta.getTime();
+                var nowMs = tripObj.timeStampDate.getTime();
+                tripObj.etaMins = Math.round((etaMs - nowMs) / (60 * 1000));
+	    }
+
+	    return tripObj;
+	};
+        
+	var fillInHeaderRow = function(tripObj, dir, totalTrips) {
+	    var rowSpan = "";
+	    if (totalTrips > 1) {
+		rowSpan = " rowspan=\"2\"";
+	    }
+
+	    var hdr = "";
+	    if (dir == "I") {
+		hdr = "Inbound (to Boston)";
+	    } else { 
+		hdr = "Outbound (to Reading)";
+	    }
+	    
+	    var eta = "";
+	    var imgCellId = "";
+	    if (totalTrips == 0) {
+		eta = "no prediction";
+		imgCellId = "";
+	    } else {
+		eta = normalizeEtaMins(tripObj.etaMins);
+		imgCellId = " id=\"imgcell"+tripObj.trip+"\"";
+	    }
+
+	    var rowStr = "<tr>"+
+		"<th"+rowSpan+" class=\"lead\">"+hdr+"</th>\n" +
+                "<td class=\"lead\">"+eta+"</td>\n" +
+		"<td"+imgCellId+">&nbsp;</td>\n</tr>";
+
+	    $("#trainTable > tbody").append(rowStr);
+
+	};
+
+	var fillInTripRow = function(tripObj, i, rowspan) {
+	    var eta = normalizeEtaMins(tripObj.etaMins);
+	    
+	    var rowStr = "<tr>"+"<td>"+eta+"</td>\n" +
+	    "<td id=\"imgcell"+tripObj.trip+"\">&nbsp;</td>\n</tr>";
+
+	    $("#trainTable > tbody").append(rowStr);
+
+	};
+
+	var normalizeEtaMins = function(etaMins) {
+	    if (etaMins == 'Arrived' ||
+	       etaMins == 'Departed') {
+		return etaMins;
+	    } else {
+		if (etaMins == '1') {
+		    return "1 minute";
+		} else {
+		    return etaMins + " minutes";
+		}
+	    }
+	};
+
+	var getActiveTrain = function () {
+
+	    $.ajax({
+		url: "http://"+serverAddr+"/mq/1/projects/"+projectId+"/queues/train/messages?oauth="+oauth,
+		dataType : "json",
+		cache : false,
+		success : function(data) {
+		    var dt = new Date();
+
+		    var msgs = data.messages;
+		    var msgTxt = "";
+		    if (data.messages.length == 0) {
+			msgTxt = dt.toString('M/d/yyyy HH:mm:ss') + " No messages";
+		    } else {
+			var trainNo = data.messages[0].body;
+			msgTxt = dt.toString('M/d/yyyy HH:mm:ss') + " Message found: "+trainNo;
+			$("#imgcell"+trainNo).html("<img src=\"img/steve_sm.jpeg\" class=\"img-rounded\">");
+		    }
+		},
+		error : function(err) {
+		    //alert(err);
+		}
+	    });
+
+	};
+
+    });
+
+
+ </script>                                                               
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <div class="brand">Train Arrivals: Reading</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <table id="trainTable" class="table">
+        <tbody id="trainTableBody">
+         
+        </tbody>
+      </table>
+
+
+    </div> <!-- /container -->
+
+ 
+  </body>
+</html>
