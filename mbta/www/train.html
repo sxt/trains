@@ -13,6 +13,20 @@
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
+      h1 {
+        color: maroon;
+        font-size: 35px;
+      } 
+        h2 {
+        font-size: 32px;
+      } 
+        .navbar .brand {
+        font-size: 35px;
+      }
+      .asof {
+        font-size: 25px;
+        font-style: italic;
+      }
     </style>
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -72,20 +86,32 @@
 
 		    
 		    if (readingIb.length == 0) {
-			fillInHeaderRow(null, 'I', 0);
+                        $("#det_i1").html("no prediction");
+                        $("#row_i2").hide();
 		    } else {
-			fillInHeaderRow(readingIbData[readingIb[0].trip], 'I', readingIb.length);
+			eta = normalizeEtaMins(readingIbData[readingIb[0].trip].etaMins);
+                        $("#det_i1").html(eta);
 			if (readingIb.length > 1) {
-			    fillInTripRow(readingIbData[readingIb[1].trip]);
+			    eta = normalizeEtaMins(readingIbData[readingIb[1].trip].etaMins);
+                            $("#det_i2").html(eta);
+                            $("#row_i2").show();
+			} else {
+                            $("#row_i2").hide();
 			}
 		    }
 
 		    if (readingOb.length == 0) {
-			fillInHeaderRow(null, 'O', 0);
+                        $("#det_o1").html("no prediction");
+                        $("#row_i1").hide();
 		    } else {
-			fillInHeaderRow(readingObData[readingOb[0].trip], 'O', readingOb.length);
+			eta = normalizeEtaMins(readingObData[readingOb[0].trip].etaMins);
+                        $("#det_o1").html(eta);
 			if (readingOb.length > 1) {
-			    fillInTripRow(readingObData[readingOb[1].trip]);
+			    eta = normalizeEtaMins(readingObData[readingOb[1].trip].etaMins);
+                            $("#det_o2").html(eta);
+                            $("#row_o2").show();
+			} else {
+                            $("#row_o2").hide();
 			}
 		    }
 
@@ -98,7 +124,7 @@
 			tsStr = readingObData[readingOb[0].trip].timeStampDate.toString('M/d/yyyy HH:mm');
 		    } 
 		    if (tsStr != "") {			
-			$('#trainTable tr:last').after("<tr><td colspan=\"3\"><i>as of: "+tsStr+"</i></td></tr>");
+			$('#asof').html(tsStr);
 		    }
 
 
@@ -269,15 +295,47 @@
     </div>
 
     <div class="container">
-      <table id="trainTable" class="table">
-        <tbody id="trainTableBody">
-         
-        </tbody>
-      </table>
-
-
+      <div id="hrow_i" class="row">
+         <div class="span12">
+          <h1>Inbound (To Boston)</h1>
+         </div>
+      </div>
+      <div class="row" id="row_i1">
+         <div class="span11">
+          <h2>&nbsp;&nbsp;<span id="det_i1"></span></h2>
+         </div>          
+      </div>
+      <div class="row" id="row_i2">
+         <div class="span12">
+          <h2>&nbsp;&nbsp;<span id="det_i2"></span></h2>
+         </div>
+      </div>
+<!--      <div class="row">
+         <div class="span12">&nbsp;</div>
+      </div> -->
+      <div class="row" id="hrow_o">
+         <div class="span12">
+          <h1>Outbound (From Boston)</h1>
+         </div>
+      </div>
+      <div class="row" id="row_o1">
+         <div class="span12">
+          <h2>&nbsp;&nbsp;<span id="det_o1"></span></h2>
+         </div>
+      </div>
+      <div class="row" id="row_o2">
+         <div class="span12">
+          <h2>&nbsp;&nbsp;<span id="det_o2"></span></h2>
+         </div>
+      </div>
+      <div class="row">
+         <div class="span12">&nbsp;</div>
+      </div>
+      <div class="row">
+         <div class="span12 asof" id="asof">
+         </div>
+      </div>
     </div> <!-- /container -->
 
- 
   </body>
 </html>
