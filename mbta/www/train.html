@@ -83,34 +83,48 @@
 		    readingOb.sort(function(a, b) {
 			return a.scheduled > b.scheduled;
 		    });
-
 		    
 		    if (readingIb.length == 0) {
                         $("#det_i1").html("no prediction");
+                        $("#pic_i1").removeClass();
+                        $("#pic_i2").removeClass();
                         $("#row_i2").hide();
 		    } else {
-			eta = normalizeEtaMins(readingIbData[readingIb[0].trip].etaMins);
+			eta = normalizeEtaMins(readingIbData[readingIb[0].trip]);
                         $("#det_i1").html(eta);
+                        $("#pic_i1").removeClass();
+                        $("#pic_i1").addClass("pic"+readingIb[0].trip);
 			if (readingIb.length > 1) {
-			    eta = normalizeEtaMins(readingIbData[readingIb[1].trip].etaMins);
+			    eta = normalizeEtaMins(readingIbData[readingIb[1].trip]);
                             $("#det_i2").html(eta);
+			    $("#pic_i2").removeClass();
+                            $("#pic_i2").addClass("pic"+readingIb[1].trip);
                             $("#row_i2").show();
 			} else {
+			    $("#pic_i2").removeClass();
                             $("#row_i2").hide();
 			}
 		    }
 
 		    if (readingOb.length == 0) {
                         $("#det_o1").html("no prediction");
-                        $("#row_i1").hide();
+                        $("#pic_o1").removeClass();
+                        $("#pic_o2").removeClass();
+                        $("#row_o2").hide();
+                        $("#row_o2").hide();
 		    } else {
-			eta = normalizeEtaMins(readingObData[readingOb[0].trip].etaMins);
+			eta = normalizeEtaMins(readingObData[readingOb[0].trip]);
                         $("#det_o1").html(eta);
+                        $("#pic_o1").removeClass();
+                        $("#pic_o1").addClass("pic"+readingOb[0].trip);
 			if (readingOb.length > 1) {
-			    eta = normalizeEtaMins(readingObData[readingOb[1].trip].etaMins);
+			    eta = normalizeEtaMins(readingObData[readingOb[1].trip]);
                             $("#det_o2").html(eta);
+			    $("#pic_o2").removeClass();
+                            $("#pic_o2").addClass("pic"+readingOb[1].trip);
                             $("#row_o2").show();
 			} else {
+			    $("#pic_o2").removeClass();
                             $("#row_o2").hide();
 			}
 		    }
@@ -124,7 +138,7 @@
 			tsStr = readingObData[readingOb[0].trip].timeStampDate.toString('M/d/yyyy HH:mm');
 		    } 
 		    if (tsStr != "") {			
-			$('#asof').html(tsStr);
+			$('#asof').html("As of: " + tsStr);
 		    }
 
 
@@ -197,59 +211,23 @@
 	    return tripObj;
 	};
         
-	var fillInHeaderRow = function(tripObj, dir, totalTrips) {
-	    var rowSpan = "";
-	    if (totalTrips > 1) {
-		rowSpan = " rowspan=\"2\"";
-	    }
-
-	    var hdr = "";
-	    if (dir == "I") {
-		hdr = "Inbound (to Boston)";
-	    } else { 
-		hdr = "Outbound (to Reading)";
-	    }
-	    
-	    var eta = "";
-	    var imgCellId = "";
-	    if (totalTrips == 0) {
-		eta = "no prediction";
-		imgCellId = "";
-	    } else {
-		eta = normalizeEtaMins(tripObj.etaMins);
-		imgCellId = " id=\"imgcell"+tripObj.trip+"\"";
-	    }
-
-	    var rowStr = "<tr>"+
-		"<th"+rowSpan+" class=\"lead\">"+hdr+"</th>\n" +
-                "<td class=\"lead\">"+eta+"</td>\n" +
-		"<td"+imgCellId+">&nbsp;</td>\n</tr>";
-
-	    $("#trainTable > tbody").append(rowStr);
-
-	};
-
-	var fillInTripRow = function(tripObj, i, rowspan) {
-	    var eta = normalizeEtaMins(tripObj.etaMins);
-	    
-	    var rowStr = "<tr>"+"<td>"+eta+"</td>\n" +
-	    "<td id=\"imgcell"+tripObj.trip+"\">&nbsp;</td>\n</tr>";
-
-	    $("#trainTable > tbody").append(rowStr);
-
-	};
-
-	var normalizeEtaMins = function(etaMins) {
+	var normalizeEtaMins = function(tripObj) {
+	    etaMins = tripObj.etaMins;
+	    var ret = "";
 	    if (etaMins == 'Arriving' ||
 	       etaMins == 'Departed') {
 		return etaMins;
 	    } else {
 		if (etaMins == '1') {
-		    return "1 minute";
+		    ret = "1 minute";
 		} else {
-		    return etaMins + " minutes";
+		    ret = etaMins + " minutes";
 		}
 	    }
+	    if (tripObj.flag == 'sch') {
+		ret = ret + " *";
+	    }
+	    return ret;
 	};
 
 	var getActiveTrain = function () {
@@ -263,12 +241,13 @@
 
 		    var msgs = data.messages;
 		    var msgTxt = "";
+                    
 		    if (data.messages.length == 0) {
 			msgTxt = dt.toString('M/d/yyyy HH:mm:ss') + " No messages";
 		    } else {
 			var trainNo = data.messages[0].body;
 			msgTxt = dt.toString('M/d/yyyy HH:mm:ss') + " Message found: "+trainNo;
-			$("#imgcell"+trainNo).html("<img src=\"img/steve_sm.jpeg\" class=\"img-rounded\">");
+			$(".pic"+trainNo).html("<img src=\"img/steve_sm.jpeg\" class=\"img-rounded\">");
 		    }
 		},
 		error : function(err) {
@@ -302,12 +281,12 @@
       </div>
       <div class="row" id="row_i1">
          <div class="span11">
-          <h2>&nbsp;&nbsp;<span id="det_i1"></span></h2>
+          <h2>&nbsp;&nbsp;<span id="det_i1"></span> <span id="pic_i1"></span></h2>
          </div>          
       </div>
       <div class="row" id="row_i2">
          <div class="span12">
-          <h2>&nbsp;&nbsp;<span id="det_i2"></span></h2>
+          <h2>&nbsp;&nbsp;<span id="det_i2"></span> <span id="pic_i2"></span></h2>
          </div>
       </div>
 <!--      <div class="row">
@@ -320,12 +299,12 @@
       </div>
       <div class="row" id="row_o1">
          <div class="span12">
-          <h2>&nbsp;&nbsp;<span id="det_o1"></span></h2>
+          <h2>&nbsp;&nbsp;<span id="det_o1"></span> <span id="pic_o1"></span></h2>
          </div>
       </div>
       <div class="row" id="row_o2">
          <div class="span12">
-          <h2>&nbsp;&nbsp;<span id="det_o2"></span></h2>
+          <h2>&nbsp;&nbsp;<span id="det_o2"></span> <span id="pic_o2"></span></h2>
          </div>
       </div>
       <div class="row">
