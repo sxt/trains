@@ -84,6 +84,11 @@
 			return a.scheduled > b.scheduled;
 		    });
 		    
+                    $("#pic_i1").html("");
+                    $("#pic_i2").html("");
+                    $("#pic_o1").html("");
+                    $("#pic_o2").html("");
+
 		    if (readingIb.length == 0) {
                         $("#det_i1").html("no prediction");
                         $("#pic_i1").removeClass();
@@ -227,7 +232,7 @@
 	    if (tripObj.flag == 'sch') {
 		ret = ret + " *";
 	    }
-	    return ret;
+	    return ret+" "+tripObj.trip;
 	};
 
 	var getActiveTrain = function () {
