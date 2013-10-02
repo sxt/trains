@@ -22,7 +22,16 @@
 		    $('#trainTableBody').empty();		     	    
 		    $('#trainTableBody').html("<tr colspan=\"12\"></tr>");
 
-		    $(data).find('TripMessage').each(function(){
+		    var tripMessages = $(data).find('TripMessage');
+
+		    tripMessages.sort(function(a, b) {
+			// Sorting by trip & scheduled time.
+                        var as = $(a).find('Trip').text().concat($(a).find('Scheduled').text());
+                        var bs = $(b).find('Trip').text().concat($(a).find('Scheduled').text());
+			return as > bs;
+		    });
+
+		    tripMessages.each(function(){
 			var timeStamp = $(this).find('TimeStamp').text();
 			var timeStampDate = new Date(0);
 			timeStampDate.setUTCSeconds(timeStamp);
