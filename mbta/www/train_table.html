@@ -11,7 +11,6 @@
 <script src="js/date.js"></script> 
 <script type="text/javascript">
     $(document).ready(function() {
-
 	var getData = function () {
 
 	    $.ajax({
@@ -28,7 +27,16 @@
 			// Sorting by trip & scheduled time.
                         var as = $(a).find('Trip').text().concat($(a).find('Scheduled').text());
                         var bs = $(b).find('Trip').text().concat($(a).find('Scheduled').text());
-			return as > bs;
+			var res = 0;
+			if (as > bs) {
+			    res = 1; 
+			} else {
+			    if (as < bs) {
+				res = -1;
+			    }
+			}
+                        console.log(as + " " + bs + " " + res);
+			return res;
 		    });
 
 		    tripMessages.each(function(){
@@ -92,7 +100,6 @@ trip+"</a>"+
 		    //alert(err);
 		}
 	    });
-
 	};
 
 	// Fill the table once:
