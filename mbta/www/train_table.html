@@ -26,7 +26,7 @@
 		    tripMessages.sort(function(a, b) {
 			// Sorting by trip & scheduled time.
                         var as = $(a).find('Trip').text().concat($(a).find('Scheduled').text());
-                        var bs = $(b).find('Trip').text().concat($(a).find('Scheduled').text());
+                        var bs = $(b).find('Trip').text().concat($(b).find('Scheduled').text());
 			var res = 0;
 			if (as > bs) {
 			    res = 1; 
@@ -35,7 +35,6 @@
 				res = -1;
 			    }
 			}
-                        console.log(as + " " + bs + " " + res);
 			return res;
 		    });
 
