@@ -212,6 +212,7 @@
                 var nowMs = tripObj.timeStampDate.getTime();
                 tripObj.etaMins = Math.round((etaMs - nowMs) / (60 * 1000));
 	    }
+	    
 
 	    return tripObj;
 	};
@@ -219,15 +220,15 @@
 	var normalizeEtaMins = function(tripObj) {
 	    etaMins = tripObj.etaMins;
 	    var ret = "";
-	    if (etaMins == 'Arriving' ||
-	       etaMins == 'Departed') {
+	    if (isNaN(etaMins)) {
+		// Covers "Arriving" and "Departing"
 		return etaMins;
+	    } else if (etaMins == '1') {
+		ret = "1 minute";
+	    } else if (parseInt(etaMins) < 0) {
+		ret = Math.abs(etaMins) + " minutes ago";
 	    } else {
-		if (etaMins == '1') {
-		    ret = "1 minute";
-		} else {
-		    ret = etaMins + " minutes";
-		}
+		ret = etaMins + " minutes";
 	    }
 	    if (tripObj.flag == 'sch') {
 		ret = ret + " *";
