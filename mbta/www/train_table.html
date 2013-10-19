@@ -8,6 +8,7 @@
  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script> 
 <script type="text/javascript"  src="js/cfg/traincfg.js"></script> 
+<script type="text/javascript"  src="js/train.js"></script> 
 <script src="js/date.js"></script> 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -39,59 +40,26 @@
 		    });
 
 		    tripMessages.each(function(){
-			var timeStamp = $(this).find('TimeStamp').text();
-			var timeStampDate = new Date(0);
-			timeStampDate.setUTCSeconds(timeStamp);
-			var trip = $(this).find('Trip').text();
-			var destination = $(this).find('Destination').text();
-			var stop = $(this).find('Stop').text();
-			var scheduled = $(this).find('Scheduled').text();
-			var scheduledDate = new Date(0);
-			scheduledDate.setUTCSeconds(scheduled);
-			var flag = $(this).find('Flag').text();
-			var vehicle = $(this).find('Vehicle').text();
-			var latitude = $(this).find('Latitude').text();
-			var longitude = $(this).find('Longitude').text();
-			var heading = $(this).find('Heading').text();
-			var speed = $(this).find('Speed').text();
-			var lateness = $(this).find('Lateness').text();
-			
-			var eta;
-			var etaStr = "";
-			if (flag == 'app') {
-			    // assume approaching means current time
-			    // plus 2 mins
-			    eta = new Date();
-			    eta.addSeconds(120);
-			    etaStr = eta.toString('M/d/yyyy HH:mm');
-			} else if (flag == 'arr') {
-			    eta = new Date(timeStampDate);
-			    etaStr = eta.toString('M/d/yyyy HH:mm');
-			} else if (flag == 'dep') {
-			    eta = "";
-			} else if (lateness) {
-			    eta = new Date(scheduledDate);
-			    eta.addSeconds(lateness);
-			    etaStr = eta.toString('M/d/yyyy HH:mm');
-			}
+                        
+			var tripObj = objectifyTripXml($(this));
 
 			$('#trainTable tr:last').after("<tr>"+
-						       "<td>"+timeStampDate.toString('M/d/yyyy HH:mm')+"</td>"+
+						       "<td>"+tripObj.timeStampDate.toString('M/d/yyyy HH:mm')+"</td>"+
 						       "<td>"+
-"<a id=\"mapLink\" target=\"_map\" href=\"map.html?locn="+latitude+","+longitude+"\">"+
-trip+"</a>"+
+"<a id=\"mapLink\" target=\"_map\" href=\"map.html?locn="+tripObj.latitude+","+tripObj.longitude+"\">"+
+tripObj.trip+"</a>"+
 "</td>"+
-						       "<td>"+destination+"</td>"+
-						       "<td>"+stop+"</td>"+
-						       "<td>"+scheduledDate.toString('M/d/yyyy HH:mm')+"</td>"+
-						       "<td>"+flag+"</td>"+
-						       "<td>"+vehicle+"</td>"+
-						       "<td>"+latitude+"</td>"+
-						       "<td>"+longitude+"</td>"+
-						       "<td>"+heading+"</td>"+
-						       "<td>"+speed+"</td>"+
-						       "<td>"+lateness+"</td>"+
-						       "<td>"+etaStr+"</td>"+
+						       "<td>"+tripObj.destination+"</td>"+
+						       "<td>"+tripObj.stop+"</td>"+
+						       "<td>"+tripObj.scheduledDate.toString('M/d/yyyy HH:mm')+"</td>"+
+						       "<td>"+tripObj.flag+"</td>"+
+						       "<td>"+tripObj.vehicle+"</td>"+
+						       "<td>"+tripObj.latitude+"</td>"+
+						       "<td>"+tripObj.longitude+"</td>"+
+						       "<td>"+tripObj.heading+"</td>"+
+						       "<td>"+tripObj.speed+"</td>"+
+						       "<td>"+tripObj.lateness+"</td>"+
+						       "<td>"+tripObj.etaStr+"</td>"+
 						       "</tr>\n");
 		    });
 		},
