@@ -11,28 +11,27 @@
 
     <script type="text/javascript">    
     var gMap;
-var center_address = "01867";
+var center_address = "01880";
 var m1;
-var m = 0;
-
 var currLoc=0;
+// array for markers:
+var m = new Array();
 
-var locations = {}
-
-function loadMyMarkers() {
+function loadMyMarkers(locations) {
     // Add  markers to the map
 
-    // Not the first time: remove the existing marker.
-    if (m!=0) {
-	m.setMap(null);
+    // Remove any existing (old) markers from the map.
+    for (var i=0; i < m.length; i++) {
+	m[i].setMap(null);
     }
 
-    // Add the new marker
+    // Add the new markers
     //console.log("Adding marker: " + currLoc);
 
+    var i=0;
     for (var loc in locations) {
 
-	m = new google.maps.Marker({
+	m[i++] = new google.maps.Marker({
 	    position: locations[loc],
 	    map: gMap,
 	    title:"Train",
@@ -55,16 +54,19 @@ $(document).ready(function() {
 	    success : function(data) {
 		var tripMessages = $(data).find('TripMessage');
 
+		var locations = {}
+
 		tripMessages.each(function(){
 		    var tripObj = objectifyTripXml($(this));
-		    locations = {};
-		    locations[tripObj.trip] = 
-			new google.maps.LatLng(tripObj.latitude,
-					       tripObj.longitude
-					       ,false);
+		    if (tripObj.latitude) {
+			locations[tripObj.trip] = 
+			    new google.maps.LatLng(tripObj.latitude,
+						   tripObj.longitude
+						   ,false);
+		    }
 		    
 		});
-		loadMyMarkers()
+		loadMyMarkers(locations)
 	    },
 	    error : function(err) {
 		//alert(err);
@@ -81,7 +83,7 @@ $(document).ready(function() {
 	}
 
 	var myOptions = {
-            zoom: 12,
+            zoom: 11,
             center: latlng,
             mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
