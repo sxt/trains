@@ -36,7 +36,6 @@
     <![endif]-->
 
  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-<script type="text/javascript"  src="js/cfg/traincfg.js"></script> 
 <script type="text/javascript"  src="js/train.js"></script> 
 <script src="js/date.js"></script> 
 <script type="text/javascript">
@@ -183,9 +182,9 @@
 	var getActiveTrain = function () {
 
 	    $.ajax({
-		url: "/mq/1/projects/"+projectId+"/queues/train/messages?oauth="+oauth,
+		url: "/mq",
 		dataType : "json",
-		cache : false,
+		cache : true,
 		success : function(data) {
 		    var dt = new Date();
 
@@ -226,7 +225,7 @@
     <div class="container">
       <div id="hrow_i" class="row">
          <div class="span12">
-          <h1>Inbound (To Boston)</h1>
+          <h1>Inbound (To Boston X)</h1>
          </div>
       </div>
       <div class="row" id="row_i1">

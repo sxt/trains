@@ -5,17 +5,18 @@ from twisted.web.static import File
 from twisted.web.resource import Resource
 import ConfigParser
 from sslproxy import SSLReverseProxyResource
+import os
 
-config = ConfigParser.ConfigParser()
-config.read('cfg/train.cfg')
+wwwroot = os.environ.get('wwwroot')
+mbta_host = os.environ.get('mbta_host')
+mq_host = os.environ.get('mq_host')
+mq_path = os.environ.get('mq_path')
 
-wwwroot = config.get('properties', 'wwwroot')
-mbta_url = config.get('properties', 'mbta_url')
-mq_url = config.get('properties', 'mq_url')
+print mq_path
 
 fileResource = File(wwwroot)
-mbtaProxyResource = proxy.ReverseProxyResource(mbta_url, 80, '')
-ironmqProxyResource = SSLReverseProxyResource(mq_url, 443, '')
+mbtaProxyResource = proxy.ReverseProxyResource(mbta_host, 80, '')
+ironmqProxyResource = SSLReverseProxyResource(mq_host, 443, mq_path)
 rootResource = Resource()
 
 rootResource.putChild("mbta", mbtaProxyResource)
