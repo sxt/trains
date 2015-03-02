@@ -12,3 +12,5 @@ mq_host: host name for Iron MQ API server (mq-aws-us-east-1.iron.io)
 mq_path: path for Iron MQ "get messages" API URI. Includes oauth info: 
    /1/projects/${projectId}/queues/train/messages?oauth=${oauthToken}
 ```
+
+You can put these variables into a script called env.sh for ease of use. This file name is in .gitignore, so it won't be checked in.
