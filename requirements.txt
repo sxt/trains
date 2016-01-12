@@ -2,3 +2,5 @@ Twisted==15.5.0
 configglue==1.0
 configobj==4.7.2
 pyOpenSSL==0.15
+service_identity==14.0.0
+
