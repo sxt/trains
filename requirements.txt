@@ -1,6 +1,6 @@
-Twisted==11.1.0
-Twisted-Core==11.1.0
-Twisted-Runner==11.1.0
-Twisted-Web==11.1.0
+Twisted==15.5.0
+Twisted-Core==15.5.0
+Twisted-Runner==15.5.0
+Twisted-Web==15.5.0
 configglue==1.0
 configobj==4.7.2
