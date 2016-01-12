@@ -23,6 +23,7 @@ rootResource.putChild("mq", ironmqProxyResource)
 rootResource.putChild("local", fileResource)
 
 site = server.Site(rootResource)
-reactor.listenTCP(8080, site)
+port = int(os.environ.get("PORT", 8080))
+reactor.listenTCP(port, site)
 reactor.run()
 
