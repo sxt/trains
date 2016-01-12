@@ -3,7 +3,6 @@ from twisted.internet import reactor
 from twisted.web import proxy, server
 from twisted.web.static import File
 from twisted.web.resource import Resource
-import ConfigParser
 from sslproxy import SSLReverseProxyResource
 import os
 
