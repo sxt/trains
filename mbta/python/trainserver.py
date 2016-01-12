@@ -14,6 +14,7 @@ mq_path = os.environ.get('mq_path')
 
 fileResource = File(os.path.abspath(wwwroot))
 print "*** wwwroot ***: " + os.path.abspath(wwwroot)
+print os.listdir('.')
 sys.stdout.flush()
 mbtaProxyResource = proxy.ReverseProxyResource(mbta_host, 80, '')
 ironmqProxyResource = SSLReverseProxyResource(mq_host, 443, mq_path)
