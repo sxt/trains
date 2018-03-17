@@ -134,8 +134,6 @@
 			}
 		    }
 
-		    getActiveTrain();
-
 		    var tsStr = "";
 		    if (readingIb.length > 0) {
 			tsStr = readingIbData[readingIb[0].trip].timeStampDate.toString('M/d/yyyy HH:mm');
@@ -177,33 +175,6 @@
 		ret = ret + " *";
 	    }
 	    return ret;
-	};
-
-	var getActiveTrain = function () {
-
-	    $.ajax({
-		url: "/mq",
-		dataType : "json",
-		cache : true,
-		success : function(data) {
-		    var dt = new Date();
-
-		    var msgs = data.messages;
-		    var msgTxt = "";
-                    
-		    if (data.messages.length == 0) {
-			msgTxt = dt.toString('M/d/yyyy HH:mm:ss') + " No messages";
-		    } else {
-			var trainNo = data.messages[0].body;
-			msgTxt = dt.toString('M/d/yyyy HH:mm:ss') + " Message found: "+trainNo;
-			$(".pic"+trainNo).html("<img src=\"img/steve_sm.jpeg\" class=\"img-rounded\">");
-		    }
-		},
-		error : function(err) {
-		    //alert(err);
-		}
-	    });
-
 	};
 
     });
