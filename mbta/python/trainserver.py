@@ -14,7 +14,7 @@ fileResource = File(os.path.abspath(wwwroot))
 print "*** wwwroot ***: " + os.path.abspath(wwwroot)
 print os.listdir('.')
 sys.stdout.flush()
-mbtaProxyResource = proxy.ReverseProxyResource(mbta_host, 80, '')
+mbtaProxyResource = SSLReverseProxyResource(mbta_host, 443, '')
 rootResource = Resource()
 
 rootResource.putChild("mbta", mbtaProxyResource)
