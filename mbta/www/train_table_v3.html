@@ -7,7 +7,6 @@
 <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script> 
-<script type="text/javascript"  src="js/cfg/traincfg.js"></script> 
 <script type="text/javascript"  src="js/train.js"></script> 
 <script src="js/date.js"></script> 
 <script type="text/javascript">
@@ -22,8 +21,30 @@
 		    $('#trainTableBody').empty();		     	    
 		    $('#trainTableBody').html("<tr colspan=\"12\"></tr>");
 
+                    // We're only getting one 'include' - vehicle. If we ever get more, we'll need
+                    // to inspect the included list elements (type attribute) to get the right included obj.
+                    var vehicleData = data.included[0];
+
 		    var predictions = data.data;
 		    $.each(predictions, function(index, prediction){
+
+                        var arrTimeStr = null;
+                        if (prediction.attributes.arrival_time==null) {
+                           arrTimeStr = 'N/A';
+                        } else {
+                           var arrTime = new Date(prediction.attributes.arrival_time);
+                        
+                           arrTimeStr = arrTime.toString('HH:mm');
+                        }
+
+                        var depTimeStr = null;
+                        if (prediction.attributes.departure_time==null) {
+                           depTimeStr = 'N/A';
+                        } else {
+                           var depTime = new Date(prediction.attributes.departure_time);
+                        
+                           depTimeStr = depTime.toString('HH:mm');
+                        }
 
 			$('#trainTable tr:last').after("<tr>"+
 						       "<td>"+""+"</td>"+
@@ -41,9 +62,12 @@
 						       "<td>"+tripObj.lateness+"</td>"+
 						       "<td>"+tripObj.etaStr+"</td>"+
 */
-						       "<td>"+(prediction.attributes.arrival_time==null? 'N/A' : prediction.attributes.arrival_time)+"</td>"+
-						       "<td>"+(prediction.attributes.departure_time==null? 'N/A' : prediction.attributes.departure_time)+"</td>"+
+						       "<td>"+arrTimeStr+"</td>"+
+						       "<td>"+depTimeStr+"</td>"+
 						       "<td>"+(prediction.relationships.vehicle.data==null? 'Unknown' : prediction.relationships.vehicle.data.id) +"</td>"+
+						       "<td>"+vehicleData.attributes.latitude+"</td>"+
+						       "<td>"+vehicleData.attributes.longitude+"</td>"+
+						       "<td>"+vehicleData.attributes.speed+"</td>"+
 						       "</tr>\n");
 		    });
 		},
@@ -75,7 +99,6 @@
       <th>Vehicle</th>
       <th>Latitude</th>
       <th>Longitude</th>
-      <th>Heading</th>
       <th>Speed</th>
       <th>Lateness</th>
       <th>ETA</th>
